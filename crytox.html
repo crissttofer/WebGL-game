@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>crytox</title>
+    <script type="text/javascript" src="js/glMatrix-0.9.5.min.js"></script>
+    <script type="text/javascript" src="js/webgl-utils.js"></script>
+    <script id="shader-fs" type="x-shader/x-fragment">
+        precision mediump float;
+        varying vec2 vTexturaCoord;
+        uniform sampler2D uMuestra;
+        uniform vec3 uColor;
+        void main(void) {
+            vec4 texturaColor = texture2D(uMuestra, vec2(vTexturaCoord.s, vTexturaCoord.t));
+            gl_FragColor = texturaColor * vec4(uColor, 1.0);
+        }
+    </script>
+    <script id="shader-vs" type="x-shader/x-vertex">
+        attribute vec3 aVertPosicion;
+        attribute vec2 aTexturaCoord;
+        uniform mat4 uMVMatriz;
+        uniform mat4 uPMatriz;
+        varying vec2 vTexturaCoord;
+        void main(void) {
+            gl_Position = uPMatriz * uMVMatriz * vec4(aVertPosicion, 1.0);
+            vTexturaCoord = aTexturaCoord;
+        }
+    </script>
+    <script type="text/javascript" src="js/crytox.js"></script>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-image: url("img/fondo.png");
+        background-size: cover;
+      }
+
+      .contenedor {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+      
+      .borde {
+        border: 10px solid #3a5eb6;
+        border-radius: 10px;
+        background-color: #171d2e;
+      }
+
+      .info {
+        flex: 1;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+      }
+
+      input[type="text"] {
+        width: 100px;
+        margin-bottom: 10px;
+        background-color: #000;
+        color: #fff;
+        font-size: 20px;
+        text-align: center;
+        border: 2px solid #3a5eb6;
+        border-radius: 5px;
+        outline: none; 
+        box-shadow: 0 0 5px #3a5eb6; 
+        -moz-appearance: textfield;
+        -webkit-appearance: none;
+        appearance: textfield;
+      }
+
+      input[type="text"]:focus {
+        box-shadow: 0 0 10px #3a5eb6;
+      }
+
+      .button {
+        background-color: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        transition: transform 0.2s;
+        image-rendering: pixelated;
+        background-image: url('img/start.png');
+        background-size: cover;
+        width: 100px;
+        height: 50px;
+      }
+
+      .button:hover {
+        transform: scale(1.1);
+      }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+      <div class="info">
+        <img src="img/logo.png" style="height: 200px; width: 200px;">
+        <input type="text" id="cantidad-enemigos" placeholder="Enemigos" >
+        <button class="button" id="startStop" onclick="startStop()"></button>
+        <h1 style="color: white;" id="display">00:00:00</h1>
+      </div>
+    </div>
+    <script>
+      let timer;
+      let isRunning = false;
+      let seconds = 0;
+      let minutes = 0;
+      let hours = 0;
+  
+      function startStop() {
+        iniciarWebGL()
+        if (isRunning) {
+          clearInterval(timer);
+        } else {
+          timer = setInterval(updateTime, 1000);
+        }
+        isRunning = !isRunning;
+      }
+  
+      function updateTime() {
+        seconds++;
+        if (seconds >= 60) {
+          seconds = 0;
+          minutes++;
+          if (minutes >= 60) {
+            minutes = 0;
+            hours++;
+          }
+        }
+        if(!gameover){
+          displayTime();
+        }
+        
+      }
+  
+      function displayTime() {
+        const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        document.getElementById("display").textContent = formattedTime;
+      }
+  
+      function pad(value) {
+        return value.toString().padStart(2, '0');
+      }
+  
+      function reset() {
+        clearInterval(timer);
+        isRunning = false;
+        seconds = 0;
+        minutes = 0;
+        hours = 0;
+        displayTime();
+        document.getElementById("startStop").textContent = "Iniciar";
+      }
+    </script>
+    <canvas id="leccion06-brillo" class="borde" width="670" height="670"></canvas>
+</body>
+</html>
